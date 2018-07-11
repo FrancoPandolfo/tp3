@@ -1,5 +1,4 @@
-
-class grafo:
+class grafoDir:
 	def __init__(self,dic):
 		self.dic = dic
 
@@ -10,8 +9,6 @@ class grafo:
 	def AgregarArista(self,arista):
 		if arista[1] not in self.dic[arista[0]]:
 			self.dic[arista[0]][arista[1]] = ""
-		if arista[0] not in self.dic[arista[1]]:
-			self.dic[arista[1]][arista[0]] = ""
 
 	def SacarVertice(self,vertice):
 		del self.dic[vertice]
@@ -25,12 +22,13 @@ class grafo:
 	def SacarArista(self,arista):
 		if arista[1] in self.dic[arista[0]]: 
 			del self.dic[arista[0]][arista[1]]
-		if arista[0] in self.dic[arista[1]]:
-			del self.dic[arista[1]][arista[0]]
 
 	def EstanConectados(self,v1,v2):
 		if v2 in self.dic[v1]:
-			return True
+			if v1 in self.dic[v2]:
+				return True
+			else:
+				return False
 		else:
 			return False
 

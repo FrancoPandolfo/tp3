@@ -35,12 +35,16 @@ class grafoPeso:
 			return False
 
 	def VerVecinos(self,vertice):
-		list = []
+		lista = []
 		for v in self.dic[vertice]:
-			list.append(v)
-		return list
+			lista.append(v)
+		return lista
 
 	def VerPeso(self,v1,v2):
 		if v1 in self.dic:
-			return self.dic[v1][v2]
+			if v2 in self.dic[v1]:
+				return self.dic[v1][v2]
+			else:
+				return ''
+
 

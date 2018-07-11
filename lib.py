@@ -101,25 +101,22 @@ def ArbolTendidoMinimo(grafo):
 	visitado.append(inicio)
 	heap = []
 	for w in grafo.VerVecinos(inicio):
-		arista1 = (inicio,w,grafo.VerPeso(inicio,w))
+		arista1 = (grafo.VerPeso(inicio,w),inicio,w)
 		heapq.heappush(heap,arista1)
 	arbol = grafoPeso({})
 	for x in grafo.dic:
 		arbol.AgregarVertice(x)
 	while len(heap) > 0:
 		a = heapq.heappop(heap)
-		if a[1] in visitado:
+		if a[2] in visitado:
 			continue
-		arbol.AgregarArista(a)
-		visitado.append(a[1])
-		for u in grafo.VerVecinos(a[1]):
-			arista2 = (a[1],u,grafo.VerPeso(a[1],u))
-			heapq.heappush(heap,arista2)
+		arista2 = (a[1],a[2],a[0])
+		arbol.AgregarArista(arista2)
+		visitado.append(a[2])
+		for u in grafo.VerVecinos(a[2]):
+			arista3 = (grafo.VerPeso(a[2],u),a[2],u)
+			heapq.heappush(heap,arista3)
 	return arbol
-
-
-
-
 
 
 graph=grafoPeso({})
@@ -138,7 +135,8 @@ graph.AgregarArista(('E','D',703))
 graph.AgregarArista(('E','B',7))
 #print(RecorridoMinimo(graph,'A'))
 #print(CaminoMinimo(graph,'A','E'))
-print(ArbolTendidoMinimo(graph))
+print(ArbolTendidoMinimo(graph).dic)
+
 
 graph2=grafoDir({})
 graph2.AgregarVertice('A')

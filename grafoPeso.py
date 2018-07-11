@@ -39,4 +39,8 @@ class grafoPeso:
 		for v in self.dic[vertice]:
 			list.append(v)
 		return list
-		
+
+	def VerPeso(self,v1,v2):
+		if v1 in self.dic:
+			return self.dic[v1][v2]
+

@@ -4,7 +4,7 @@ import random
 from grafoPeso import grafoPeso
 from grafoDir import grafoDir
 
-def RecorridoMinimo(grafo,origen):
+def viajante(grafo,origen):
 	dist = {}
 	padre = {}
 	for v in grafo.dic: 
@@ -22,7 +22,7 @@ def RecorridoMinimo(grafo,origen):
 				heapq.heappush(heap,w)
 	return padre,dist
 
-def RecorridoMinimoAprox(grafo,origen):
+def viajante_aproximado(grafo,origen):
 	visitado = []
 	padre = {}
 	dist = {}
@@ -86,7 +86,7 @@ def ArmarCamino(padre,distancia,origen):
 	return padre
 
 
-def CaminoMinimo(grafo,origen,destino):
+def camino_minimo(grafo,origen,destino):
 	dist = {}
 	padre = {}
 	for v in grafo.dic: 
@@ -107,7 +107,7 @@ def CaminoMinimo(grafo,origen,destino):
 				heapq.heappush(heap,w)
 	return padre,dist
 
-def OrdenTopologico(grafo):
+def orden_topologico(grafo):
 	grado = {}
 	for u in grafo.dic:
 		grado[u] = 0
@@ -126,9 +126,12 @@ def OrdenTopologico(grafo):
 			grado[v] -= 1
 			if grado[v] == 0:
 				cola.put(v)
-	return resul
+	if len(resul) == 0:
+		return None
+	else:
+		return resul
 
-def ArbolTendidoMinimo(grafo):
+def arbol_tendido_minimo(grafo):
 	inicio = random.choice(list(grafo.dic.keys()))
 	visitado = []
 	visitado.append(inicio)
@@ -150,40 +153,6 @@ def ArbolTendidoMinimo(grafo):
 			arista3 = (grafo.VerPeso(a[2],u),a[2],u)
 			heapq.heappush(heap,arista3)
 	return arbol
-
-
-graph=grafoPeso({})
-graph.AgregarVertice('A')
-graph.AgregarVertice('B')
-graph.AgregarVertice('C')
-graph.AgregarVertice('D')
-graph.AgregarVertice('E')
-graph.AgregarArista(('A','B',1))
-graph.AgregarArista(('B','C',4))
-graph.AgregarArista(('A','D',2))
-graph.AgregarArista(('B','D',3))
-graph.AgregarArista(('D','C',2))
-graph.AgregarArista(('C','E',2))
-graph.AgregarArista(('E','D',703))
-graph.AgregarArista(('E','B',7))
-#print(RecorridoMinimo(graph,'A'))
-#print(CaminoMinimo(graph,'A','E'))
-#print(ArbolTendidoMinimo(graph).dic)
-print(RecorridoMinimoAprox(graph,'A'))
-
-graph2=grafoDir({})
-graph2.AgregarVertice('A')
-graph2.AgregarVertice('B')
-graph2.AgregarVertice('C')
-graph2.AgregarVertice('D')
-graph2.AgregarVertice('E')
-graph2.AgregarArista(('A','B'))
-graph2.AgregarArista(('B','C'))
-graph2.AgregarArista(('A','D'))
-graph2.AgregarArista(('B','D'))
-graph2.AgregarArista(('D','C'))
-graph2.AgregarArista(('C','E'))
-#print(OrdenTopologico(graph2))
 
 
 

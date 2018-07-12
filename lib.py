@@ -22,6 +22,39 @@ def RecorridoMinimo(grafo,origen):
 				heapq.heappush(heap,w)
 	return padre,dist
 
+def RecorridoMinimoAprox(grafo,origen):
+	visitado = []
+	padre = {}
+	dist = {}
+	cola = queue.Queue()
+	visitado.append(origen)
+	heap = []
+	heap2 = []
+	padre[origen] = None
+	dist[origen] = 0
+	heapq.heappush(heap,origen)
+	while len (heap) > 0:
+		v = heapq.heappop(heap)
+		contador = 0
+		for w in grafo.VerVecinos(v):
+			a = (grafo.VerPeso(v,w),v,w)
+			heapq.heappush(heap2,a)
+			contador += 1
+		while len (heap2) > 0:
+			u = heapq.heappop(heap2)
+			contador -= 1
+			if u[2] not in visitado:
+				visitado.append(u[2])
+				padre[u[2]] = v
+				dist[u[2]] = dist[v] + u[0]
+				heapq.heappush(heap,u[2])
+				break
+			else:
+				continue
+		for i in range(0,contador):
+			heapq.heappop(heap2)
+	return padre,dist
+
 def ArmarCamino(padre,distancia,origen):
 	condicion1 = False
 	condicion2 = False
@@ -135,8 +168,8 @@ graph.AgregarArista(('E','D',703))
 graph.AgregarArista(('E','B',7))
 #print(RecorridoMinimo(graph,'A'))
 #print(CaminoMinimo(graph,'A','E'))
-print(ArbolTendidoMinimo(graph).dic)
-
+#print(ArbolTendidoMinimo(graph).dic)
+print(RecorridoMinimoAprox(graph,'A'))
 
 graph2=grafoDir({})
 graph2.AgregarVertice('A')

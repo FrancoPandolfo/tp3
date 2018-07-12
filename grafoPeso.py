@@ -45,6 +45,25 @@ class grafoPeso:
 			if v2 in self.dic[v1]:
 				return self.dic[v1][v2]
 			else:
-				return ''
+				return 0
 
+	def CantidadAristas(self):
+		contador = 0
+		for v in self.dic:
+			for w in self.VerVecinos(v):
+				if v == w:
+					continue
+				contador += 1
+		return contador // 2
 
+	def PesoTotal(self):
+		visitado = []
+		contador = 0
+		for v in self.dic:
+			visitado.append(v)
+			for w in self.VerVecinos(v):
+				if v == w:
+					continue
+				if w not in visitado:
+					contador += self.VerPeso(v,w)
+		return contador

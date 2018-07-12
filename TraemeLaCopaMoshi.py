@@ -8,6 +8,7 @@ grafoPesado = grafoPeso({})
 grafoDirigido = grafoDir({})
 
 if os.path.isfile(sys.argv[1]) == True:
+
 	archivo = open(sys.argv[1], 'r')
 	cantidadV = int(archivo.readline())
 	for i in range(0,cantidadV):
@@ -23,7 +24,8 @@ if os.path.isfile(sys.argv[1]) == True:
 		grafoPesado.AgregarArista( (linea2[0],linea2[1],int(linea2[2])) )
 		grafoDirigido.AgregarArista((linea2[0],linea2[1]))
 
-	archivo.closed
+	archivo.close()
+
 else:
 	print('archivo incorrecto')
 	sys.exit()
@@ -40,19 +42,48 @@ while True:
 
 	elif cadena[0] == 'viaje':
 		cadena[1] = cadena[1][:-1]
+
 		if cadena[1] == 'optimo':
 			lib.viajante(grafoPesado,cadena[2])
+
 		elif cadena[1] == 'aproximado':
 			lib.viajante_aproximado(grafoPesado,cadena[2])
+
 		else:
 			print('comando incorrecto')
 			sys.exit()
 
 	elif cadena[0] == 'itinerario':
+		'''if os.path.isfile(sys.argv[1]) == True:
+			archivo = open(cadena[1], 'r')
+			with open(cadena[1]) as archivo:  
+   				for cnt, lectura in enumerate(fp):
+					linea = lectura.split(',')
+					grafoDirigido.AgregarVertice(linea1[0])'''
+
 		lib.orden_topologico(grafoDirigido)
 
+
+
 	elif cadena[0] == 'reducir_caminos':
-		lib.arbol_tendido_minimo(grafoPesado)
+		arbol = lib.arbol_tendido_minimo(grafoPesado)
+		visitado = []
+		file = open(cadena[1],'w')
+
+		file.write("%s\n" % ( str(len(arbol.dic)) ) )
+		for v in arbol.dic:
+			file.write("%s\n" % (v) )
+		file.write("%s\n" % ( str(arbol.CantidadAristas()) ) )
+		for v in arbol.dic:
+			visitado.append(v)
+			for w in arbol.VerVecinos(v):
+				if v == w:
+					continue
+				if w not in visitado:
+					file.write("%s,%s,%s\n" % (v, w, str(arbol.VerPeso(v,w))) )
+		file.close()
+		print(arbol.PesoTotal())			
+
 
 	else:
 		print('comando incorrecto')

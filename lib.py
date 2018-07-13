@@ -1,6 +1,7 @@
 import heapq
 import queue
 import random
+import math
 from grafoPeso import grafoPeso
 from grafoDir import grafoDir
 
@@ -67,22 +68,26 @@ def ArmarCamino(padre,distancia,origen):
 					for x in padre:
 						if padre[x] == v:
 							padre[w] = None
+							del distancia[w]
 							condicion1 = True
 							break
 					if condicion1 == True:
 						continue
 					else:
 						padre[v] = None
+						del distancia[v]
 				else:
 					for y in padre:
 						if padre[y] == w:
 							padre[v] = None
+							del distancia[v]
 							condicion2 = True
 							break
 					if condicion2 == True:
 						continue
 					else:
 						padre[w] = None
+						del distancia[w]
 	return padre
 
 
@@ -90,7 +95,7 @@ def camino_minimo(grafo,origen,destino):
 	dist = {}
 	padre = {}
 	for v in grafo.dic: 
-		dist[v] = 9999
+		dist[v] = math.inf
 	dist[origen] = 0
 	padre[origen] = None
 	heap = []

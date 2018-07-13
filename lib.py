@@ -56,61 +56,38 @@ def viajante_aproximado(grafo,origen):
 			heapq.heappop(heap2)
 	return padre,dist
 
-def ArmarCamino(padre,distancia,origen):
-	condicion1 = False
-	condicion2 = False
-	for v in padre:
-		for w in padre:
-			if v == w:
-				continue
-			if padre[v] == padre[w]:
-				if distancia[v] < distancia[w]:
-					for x in padre:
-						if padre[x] == v:
-							padre[w] = None
-							del distancia[w]
-							condicion1 = True
-							break
-					if condicion1 == True:
-						continue
-					else:
-						padre[v] = None
-						del distancia[v]
-				else:
-					for y in padre:
-						if padre[y] == w:
-							padre[v] = None
-							del distancia[v]
-							condicion2 = True
-							break
-					if condicion2 == True:
-						continue
-					else:
-						padre[w] = None
-						del distancia[w]
-	return padre
-
-
-def camino_minimo(grafo,origen,destino):
+"""	Devuelve una lista con el camino mínimo, y la menor distancia desde
+	el origen hacia el destino	"""
+def dijkstra(grafo, origen):
 	dist = {}
 	padre = {}
-	for v in grafo.dic: 
-		dist[v] = math.inf
+	for v in grafo.MostrarVertices():
+		dist[v] = 9999
 	dist[origen] = 0
 	padre[origen] = None
 	heap = []
-	heapq.heappush(heap,origen)
-	while len (heap) > 0:
-		v = heapq.heappop(heap)
-		if v == destino:
-			padre = ArmarCamino(padre,dist,origen)
-			break
+	heapq.heappush(heap, (0, origen))
+	while len(heap) > 0:
+		peso, v = heapq.heappop(heap)
 		for w in grafo.VerVecinos(v):
-			if dist[v] + grafo.dic[v][w] < dist[w]:
+			if dist[v] + grafo.VerPeso(v, w) < dist[w]:
+				dist[w] = dist[v] + grafo.VerPeso(v, w)
 				padre[w] = v
-				dist[w] = dist[v] + grafo.dic[v][w]
-				heapq.heappush(heap,w)
-	return padre,dist
+				heapq.heappush(heap, (dist[w], w))
+	return padre, dist
+
+def armar_camino(padre, destino):
+	aux = destino
+	camino = []
+	while aux:
+		camino.append(aux)
+		aux = padre[aux]
+	camino.reverse()
+	return camino
+
+def camino_minimo(grafo, origen, destino):
+	padre, dist = dijkstra(grafo, origen)
+	return armar_camino(padre, destino), dist[destino]
 
 def orden_topologico(grafo):
 	grado = {}

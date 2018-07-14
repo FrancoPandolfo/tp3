@@ -2,6 +2,7 @@ import heapq
 import queue
 import random
 import math
+from collections import OrderedDict
 from grafoPeso import grafoPeso
 from grafoDir import grafoDir
 
@@ -114,13 +115,24 @@ def camino_minimo(grafo, origen, destino):
 	padre, dist = dijkstra(grafo, origen)
 	return armar_camino(padre, destino), dist[destino]
 
-def orden_topologico(grafo):
+def orden_topologico(grafo,lista):
 	grado = {}
 	for u in grafo.dic:
 		grado[u] = 0
-	for m in grafo.dic:
+	'''for m in grafo.dic:
 		for w in grafo.VerVecinos(m):
-			grado[w] += 1
+			grado[w] += 1'''
+	aux = []
+	g = 0
+	for x in lista:
+		aux.append(x[0])
+	aux = OrderedDict((x, True) for x in aux).keys()
+	for y in aux:
+		g += 1
+		grado[y] += g
+	for tupla in lista:
+		if grado[tupla[1]] <= grado[tupla[0]]:
+			grado[tupla[1]] = grado[tupla[0]] + 1
 	resul = []
 	cola = queue.Queue()
 	for n in grafo.dic:
@@ -133,7 +145,7 @@ def orden_topologico(grafo):
 			grado[v] -= 1
 			if grado[v] == 0:
 				cola.put(v)
-	if len(resul) == 0:
+	if len(resul) != len(grafo.dic):
 		return None
 	else:
 		return resul

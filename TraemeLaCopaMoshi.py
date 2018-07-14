@@ -23,6 +23,7 @@ if os.path.isfile(sys.argv[1]) == True:
 		linea2 = lectura2.split(',')
 		grafoPesado.AgregarArista( (linea2[0],linea2[1],int(linea2[2])) )
 		grafoDirigido.AgregarArista((linea2[0],linea2[1]))
+		grafoDirigido.AgregarArista((linea2[1],linea2[0]))
 
 	archivo.close()
 
@@ -62,15 +63,23 @@ while True:
 			sys.exit()
 
 	elif cadena[0] == 'itinerario':
-		'''if os.path.isfile(sys.argv[1]) == True:
-			archivo = open(cadena[1], 'r')
-			with open(cadena[1]) as archivo:  
-   				for cnt, lectura in enumerate(fp):
-					linea = lectura.split(',')
-					grafoDirigido.AgregarVertice(linea1[0])'''
+		if os.path.isfile(cadena[1]) == True:
+   			archivo = open(cadena[1], 'r')
+   			lista = []
+   			for line in archivo:
+   				line=line[:-1]
+   				linea = line.split(',')
+   				lista.append((linea[0],linea[1]))
 
-		lib.orden_topologico(grafoDirigido)
+		archivo.close()
 
+		camino = lib.orden_topologico(grafoDirigido,lista)
+		if camino == None:
+			print(None)
+		else:
+			for i in range(0,len(camino)-1):
+				print(camino[i],'-> ', end='')
+			print(camino[len(camino)-1])
 
 
 	elif cadena[0] == 'reducir_caminos':

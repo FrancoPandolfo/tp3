@@ -7,15 +7,19 @@ from grafoDir import grafoDir
 grafoPesado = grafoPeso({})
 grafoDirigido = grafoDir({})
 
+coordenadas = {}
+
 if os.path.isfile(sys.argv[1]) == True:
 
 	archivo = open(sys.argv[1], 'r')
 	cantidadV = int(archivo.readline())
 	for i in range(0,cantidadV):
 		lectura1 = archivo.readline()
+		lectura1 = lectura1[:-1]
 		linea1 = lectura1.split(',')
 		grafoPesado.AgregarVertice(linea1[0])
 		grafoDirigido.AgregarVertice(linea1[0])
+		coordenadas[linea1[0]] = (linea1[1],linea1[2])
 
 	cantidadA = int(archivo.readline())
 	for j in range(0,cantidadA):
@@ -26,7 +30,6 @@ if os.path.isfile(sys.argv[1]) == True:
 		grafoDirigido.AgregarArista((linea2[1],linea2[0]))
 
 	archivo.close()
-
 else:
 	print('archivo incorrecto')
 	sys.exit()
@@ -43,20 +46,30 @@ while True:
 		for i in range(0,len(camino[0])-1):
 			print(camino[0][i],'-> ', end='')
 		print(camino[0][len(camino[0])-1])
-		print('Costo total: ', camino[1])
+		print('Costo total:', camino[1])
+		archivo = sys.argv[2]
+		lib.armar_archivo1(archivo,camino,coordenadas)
 
 	elif cadena[0] == 'viaje':
 		cadena[1] = cadena[1][:-1]
 
 		if cadena[1] == 'optimo':
-			print(lib.viajante(grafoPesado,cadena[2]))
+			camino = lib.viajante(grafoPesado,cadena[2])
+			for i in range(0,len(camino[0])-1):
+				print(camino[0][i],'-> ', end='')
+			print(camino[0][len(camino[0])-1])
+			print('Costo total:', camino[1])
+			archivo = sys.argv[2]
+			lib.armar_archivo1(archivo,camino,coordenadas)
 
 		elif cadena[1] == 'aproximado':
 			camino = lib.viajante_aproximado(grafoPesado,cadena[2])
 			for i in range(0,len(camino[0])-1):
 				print(camino[0][i],'-> ', end='')
 			print(camino[0][len(camino[0])-1])
-			print('Costo total: ', camino[1])
+			print('Costo total:', camino[1])
+			archivo = sys.argv[2]
+			lib.armar_archivo1(archivo,camino,coordenadas)
 
 		else:
 			print('comando incorrecto')
@@ -80,6 +93,9 @@ while True:
 			for i in range(0,len(camino)-1):
 				print(camino[i],'-> ', end='')
 			print(camino[len(camino)-1])
+			archivo = sys.argv[2]
+			lib.armar_archivo2(archivo,camino,coordenadas)
+			
 
 
 	elif cadena[0] == 'reducir_caminos':
@@ -99,7 +115,7 @@ while True:
 				if w not in visitado:
 					file.write("%s,%s,%s\n" % (v, w, str(arbol.VerPeso(v,w))) )
 		file.close()
-		print(arbol.PesoTotal())			
+		print('Peso total:',arbol.PesoTotal())			
 
 
 	else:

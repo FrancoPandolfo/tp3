@@ -172,3 +172,69 @@ def arbol_tendido_minimo(grafo):
 			arista3 = (grafo.VerPeso(a[2],u),a[2],u)
 			heapq.heappush(heap,arista3)
 	return arbol
+
+def armar_archivo1(archivo,camino,coordenadas):
+	file = open(archivo,'w')
+
+	file.write("%s\n" % ('<?xml version="1.0" encoding="UTF-8"?>'))
+	file.write("%s\n" % ('<kml xmlns="http://earth.google.com/kml/2.1">'))
+	file.write("\t%s\n" % ('<Document>'))
+	file.write("\t\t%s\n\n" % ('<name>itinerario</name>'))
+	for i in range(0,len(camino[0])):
+		x = camino[0][i]
+		coord1 = coordenadas[x]
+		file.write("\t\t%s\n" % ('<Placemark>'))
+		file.write("\t\t\t%s%s%s\n" % ('<name>',x, '</name>'))
+		file.write("\t\t\t%s\n" % ('<Point>'))
+		file.write("\t\t\t\t%s%s%s%s%s\n" % (' <coordinates>',str(coord1[0]),', ', str(coord1[1]),'</coordinates>'))
+		file.write("\t\t\t%s\n" % ('<Point>'))
+		file.write("\t\t%s\n\n" % ('<Placemark>'))
+
+	for i in range(0,len(camino[0])):
+		x = camino[0][i]
+		coord1 = coordenadas[x]
+		if i < len(camino[0])-1:
+			y = camino[0][i+1]
+			coord2 = coordenadas[y]
+			file.write("\t\t%s\n" % ('<Placemark>'))
+			file.write("\t\t\t%s\n" % ('</LineString>'))
+			file.write("\t\t\t\t%s%s%s%s%s%s%s%s%s\n" % ('<coordinates>',str(coord1[0]),', ', str(coord1[1]),' ',str(coord2[0]),', ', str(coord2[1]),'</coordinates>'))
+			file.write("\t\t\t%s\n" % ('</LineString>'))
+			file.write("\t\t%s\n\n" % ('<Placemark>'))
+
+	file.write("\t%s\n" % ('<Document>'))
+	file.write("%s\n" % ('</kml>'))			
+	file.close()
+
+def armar_archivo2(archivo,camino,coordenadas):
+	file = open(archivo,'w')
+
+	file.write("%s\n" % ('<?xml version="1.0" encoding="UTF-8"?>'))
+	file.write("%s\n" % ('<kml xmlns="http://earth.google.com/kml/2.1">'))
+	file.write("\t%s\n" % ('<Document>'))
+	file.write("\t\t%s\n\n" % ('<name>itinerario</name>'))
+	for i in range(0,len(camino)):
+		x = camino[i]
+		coord1 = coordenadas[x]
+		file.write("\t\t%s\n" % ('<Placemark>'))
+		file.write("\t\t\t%s%s%s\n" % ('<name>',x, '</name>'))
+		file.write("\t\t\t%s\n" % ('<Point>'))
+		file.write("\t\t\t\t%s%s%s%s%s\n" % (' <coordinates>',str(coord1[0]),', ', str(coord1[1]),'</coordinates>'))
+		file.write("\t\t\t%s\n" % ('<Point>'))
+		file.write("\t\t%s\n\n" % ('<Placemark>'))
+
+	for i in range(0,len(camino)):
+		x = camino[i]
+		coord1 = coordenadas[x]
+		if i < len(camino)-1:
+			y = camino[i+1]
+			coord2 = coordenadas[y]
+			file.write("\t\t%s\n" % ('<Placemark>'))
+			file.write("\t\t\t%s\n" % ('</LineString>'))
+			file.write("\t\t\t\t%s%s%s%s%s%s%s%s%s\n" % ('<coordinates>',str(coord1[0]),', ', str(coord1[1]),' ',str(coord2[0]),', ', str(coord2[1]),'</coordinates>'))
+			file.write("\t\t\t%s\n" % ('</LineString>'))
+			file.write("\t\t%s\n\n" % ('<Placemark>'))
+
+	file.write("\t%s\n" % ('<Document>'))
+	file.write("%s\n" % ('</kml>'))			
+	file.close()

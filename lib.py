@@ -5,25 +5,40 @@ import math
 from grafoPeso import grafoPeso
 from grafoDir import grafoDir
 
+def ArmarCamino(grafo,padre,distancia,origen):
+	for v in padre:
+		for w in padre:
+			if v == w:
+				continue
+			if padre[v] == padre[w]:
+				if distancia[v] < distancia[w]:
+					padre[w] = v
+					distancia[w] = distancia[v] + grafo.VerPeso(v, w)
+				else:
+					padre[v] = w
+					distancia[v] = distancia[w] + grafo.VerPeso(v, w)
+	return padre,distancia
+
 def viajante(grafo,origen):
 	dist = {}
 	padre = {}
-	for v in grafo.dic: 
+	for v in grafo.MostrarVertices():
 		dist[v] = math.inf
 	dist[origen] = 0
 	padre[origen] = None
 	heap = []
-	heapq.heappush(heap,origen)
-	while len (heap) > 0:
-		v = heapq.heappop(heap)
+	heapq.heappush(heap, (0, origen))
+	while len(heap) > 0:
+		peso, v = heapq.heappop(heap)
 		for w in grafo.VerVecinos(v):
-			if dist[v] + grafo.dic[v][w] < dist[w]:
+			if dist[v] + grafo.VerPeso(v, w) < dist[w]:
+				dist[w] = dist[v] + grafo.VerPeso(v, w)
 				padre[w] = v
-				dist[w] = dist[v] + grafo.dic[v][w]
-				heapq.heappush(heap,w)
-	return padre,dist
+				heapq.heappush(heap, (dist[w], w))
+	ArmarCamino(grafo,padre,dist,origen)
+	return padre, dist
 
-def viajante_aproximado(grafo,origen):
+def viajante_aproximado_funcion(grafo,origen):
 	visitado = []
 	padre = {}
 	dist = {}
@@ -55,6 +70,16 @@ def viajante_aproximado(grafo,origen):
 		for i in range(0,contador):
 			heapq.heappop(heap2)
 	return padre,dist
+
+def viajante_aproximado(grafo,origen):
+	padre, dist = viajante_aproximado_funcion(grafo, origen)
+	viaje = []
+	peso_total = 0
+	for v in padre:
+		viaje.append(v)
+	for w in dist:
+		peso_total += dist[w]
+	return viaje, peso_total
 
 """	Devuelve una lista con el camino mínimo, y la menor distancia desde
 	el origen hacia el destino	"""

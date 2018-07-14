@@ -39,7 +39,6 @@ while True:
 	if cadena[0] == 'ir':
 		cadena[1] = cadena[1][:-1]
 		camino = lib.camino_minimo(grafoPesado,cadena[1],cadena[2])
-		camino[0]
 		for i in range(0,len(camino[0])-1):
 			print(camino[0][i],'-> ', end='')
 		print(camino[0][len(camino[0])-1])
@@ -49,10 +48,14 @@ while True:
 		cadena[1] = cadena[1][:-1]
 
 		if cadena[1] == 'optimo':
-			lib.viajante(grafoPesado,cadena[2])
+			print(lib.viajante(grafoPesado,cadena[2]))
 
 		elif cadena[1] == 'aproximado':
-			lib.viajante_aproximado(grafoPesado,cadena[2])
+			camino = lib.viajante_aproximado(grafoPesado,cadena[2])
+			for i in range(0,len(camino[0])-1):
+				print(camino[0][i],'-> ', end='')
+			print(camino[0][len(camino[0])-1])
+			print('Costo total: ', camino[1])
 
 		else:
 			print('comando incorrecto')

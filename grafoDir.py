@@ -37,3 +37,9 @@ class grafoDir:
 		for v in self.dic[vertice]:
 			list.append(v)
 		return list
+
+	def VerVertices(self):
+		return self.dic.keys()
+
+	def VerticePertenece(self, v):
+		return v in self.dic

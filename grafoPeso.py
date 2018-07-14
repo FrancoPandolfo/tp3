@@ -67,3 +67,9 @@ class grafoPeso:
 				if w not in visitado:
 					contador += self.VerPeso(v,w)
 		return contador
+
+	def MostrarVertices(self):
+		return self.dic.keys()
+
+	def VerticePertenece(self, v):
+		return v in self.dic

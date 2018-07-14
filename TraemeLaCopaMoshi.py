@@ -38,7 +38,12 @@ while True:
 
 	if cadena[0] == 'ir':
 		cadena[1] = cadena[1][:-1]
-		lib.camino_minimo(grafoPesado,cadena[1],cadena[2])
+		camino = lib.camino_minimo(grafoPesado,cadena[1],cadena[2])
+		camino[0]
+		for i in range(0,len(camino[0])-1):
+			print(camino[0][i],'-> ', end='')
+		print(camino[0][len(camino[0])-1])
+		print('Costo total: ', camino[1])
 
 	elif cadena[0] == 'viaje':
 		cadena[1] = cadena[1][:-1]

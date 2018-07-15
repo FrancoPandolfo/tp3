@@ -88,7 +88,7 @@ while True:
 		if os.path.isfile(cadena[1]) == False:
 			print('archivo incorrecto')
 			sys.exit()
-			
+
 		archivo.close()
 
 		camino = lib.orden_topologico(grafoDirigido,lista)
@@ -110,7 +110,8 @@ while True:
 
 		file.write("%s\n" % ( str(len(arbol.dic)) ) )
 		for v in arbol.dic:
-			file.write("%s\n" % (v) )
+			coord = coordenadas[v]
+			file.write("%s,%s,%s\n" % (v,coord[1],coord[0]) )
 		file.write("%s\n" % ( str(arbol.CantidadAristas()) ) )
 		for v in arbol.dic:
 			visitado.append(v)

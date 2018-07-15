@@ -6,38 +6,41 @@ from collections import OrderedDict
 from grafoPeso import grafoPeso
 from grafoDir import grafoDir
 
-def ArmarCamino(grafo,padre,distancia,origen):
-	for v in padre:
-		for w in padre:
-			if v == w:
-				continue
-			if padre[v] == padre[w]:
-				if distancia[v] < distancia[w]:
-					padre[w] = v
-					distancia[w] = distancia[v] + grafo.VerPeso(v, w)
-				else:
-					padre[v] = w
-					distancia[v] = distancia[w] + grafo.VerPeso(v, w)
-	return padre,distancia
+def buscar_pos(dic,vertice):
+	cont = 0
+	for v in dic:
+		if v == vertice:
+			break
+		cont += 1
+	return cont
+
+def viajante_floyd(grafo):
+	w, h = len(grafo.dic), len(grafo.dic);
+	dist = [[math.inf for x in range(w)] for y in range(h)]
+	for i in range(0,h):
+		dist[i][i] = 0
+	posV = 0
+	for v in grafo.dic:
+		for w in grafo.dic[v]:
+			posW = buscar_pos(grafo.dic,w)
+			dist[posV][posW] = grafo.VerPeso(v,w)
+		posV += 1
+	for k in range(0,h):
+		for i in range(0,h):
+			for j in range(0,h):
+				if dist[i][j] > dist[i][k] + dist[k][j]:
+					dist[i][j] = dist[i][k] + dist[k][j]
+	return dist
 
 def viajante(grafo,origen):
-	dist = {}
-	padre = {}
-	for v in grafo.MostrarVertices():
-		dist[v] = math.inf
-	dist[origen] = 0
-	padre[origen] = None
-	heap = []
-	heapq.heappush(heap, (0, origen))
-	while len(heap) > 0:
-		peso, v = heapq.heappop(heap)
-		for w in grafo.VerVecinos(v):
-			if dist[v] + grafo.VerPeso(v, w) < dist[w]:
-				dist[w] = dist[v] + grafo.VerPeso(v, w)
-				padre[w] = v
-				heapq.heappush(heap, (dist[w], w))
-	ArmarCamino(grafo,padre,dist,origen)
-	return padre, dist
+	viaje = []
+	matriz = viajante_floyd(grafo)
+	v = buscar_pos(grafo.dic,origen)
+	for i in range(v+1,len(matriz[v])):
+		buscar_vertice()
+	distancia = matriz[v][len(grafo.dic)-1]
+	return distancia
+
 
 def viajante_aproximado_funcion(grafo,origen):
 	visitado = []
@@ -179,7 +182,7 @@ def armar_archivo1(archivo,camino,coordenadas):
 	file.write("%s\n" % ('<?xml version="1.0" encoding="UTF-8"?>'))
 	file.write("%s\n" % ('<kml xmlns="http://earth.google.com/kml/2.1">'))
 	file.write("\t%s\n" % ('<Document>'))
-	file.write("\t\t%s\n\n" % ('<name>itinerario</name>'))
+	file.write("\t\t%s\n\n" % ('<name>camino</name>'))
 	for i in range(0,len(camino[0])):
 		x = camino[0][i]
 		coord1 = coordenadas[x]
@@ -187,8 +190,8 @@ def armar_archivo1(archivo,camino,coordenadas):
 		file.write("\t\t\t%s%s%s\n" % ('<name>',x, '</name>'))
 		file.write("\t\t\t%s\n" % ('<Point>'))
 		file.write("\t\t\t\t%s%s%s%s%s\n" % (' <coordinates>',str(coord1[0]),', ', str(coord1[1]),'</coordinates>'))
-		file.write("\t\t\t%s\n" % ('<Point>'))
-		file.write("\t\t%s\n\n" % ('<Placemark>'))
+		file.write("\t\t\t%s\n" % ('</Point>'))
+		file.write("\t\t%s\n\n" % ('</Placemark>'))
 
 	for i in range(0,len(camino[0])):
 		x = camino[0][i]
@@ -197,12 +200,12 @@ def armar_archivo1(archivo,camino,coordenadas):
 			y = camino[0][i+1]
 			coord2 = coordenadas[y]
 			file.write("\t\t%s\n" % ('<Placemark>'))
-			file.write("\t\t\t%s\n" % ('</LineString>'))
+			file.write("\t\t\t%s\n" % ('<LineString>'))
 			file.write("\t\t\t\t%s%s%s%s%s%s%s%s%s\n" % ('<coordinates>',str(coord1[0]),', ', str(coord1[1]),' ',str(coord2[0]),', ', str(coord2[1]),'</coordinates>'))
 			file.write("\t\t\t%s\n" % ('</LineString>'))
-			file.write("\t\t%s\n\n" % ('<Placemark>'))
+			file.write("\t\t%s\n\n" % ('</Placemark>'))
 
-	file.write("\t%s\n" % ('<Document>'))
+	file.write("\t%s\n" % ('</Document>'))
 	file.write("%s\n" % ('</kml>'))			
 	file.close()
 
@@ -220,8 +223,8 @@ def armar_archivo2(archivo,camino,coordenadas):
 		file.write("\t\t\t%s%s%s\n" % ('<name>',x, '</name>'))
 		file.write("\t\t\t%s\n" % ('<Point>'))
 		file.write("\t\t\t\t%s%s%s%s%s\n" % (' <coordinates>',str(coord1[0]),', ', str(coord1[1]),'</coordinates>'))
-		file.write("\t\t\t%s\n" % ('<Point>'))
-		file.write("\t\t%s\n\n" % ('<Placemark>'))
+		file.write("\t\t\t%s\n" % ('</Point>'))
+		file.write("\t\t%s\n\n" % ('</Placemark>'))
 
 	for i in range(0,len(camino)):
 		x = camino[i]
@@ -230,11 +233,11 @@ def armar_archivo2(archivo,camino,coordenadas):
 			y = camino[i+1]
 			coord2 = coordenadas[y]
 			file.write("\t\t%s\n" % ('<Placemark>'))
-			file.write("\t\t\t%s\n" % ('</LineString>'))
+			file.write("\t\t\t%s\n" % ('<LineString>'))
 			file.write("\t\t\t\t%s%s%s%s%s%s%s%s%s\n" % ('<coordinates>',str(coord1[0]),', ', str(coord1[1]),' ',str(coord2[0]),', ', str(coord2[1]),'</coordinates>'))
 			file.write("\t\t\t%s\n" % ('</LineString>'))
-			file.write("\t\t%s\n\n" % ('<Placemark>'))
+			file.write("\t\t%s\n\n" % ('</Placemark>'))
 
-	file.write("\t%s\n" % ('<Document>'))
+	file.write("\t%s\n" % ('</Document>'))
 	file.write("%s\n" % ('</kml>'))			
 	file.close()

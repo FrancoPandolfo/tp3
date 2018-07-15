@@ -19,7 +19,7 @@ if os.path.isfile(sys.argv[1]) == True:
 		linea1 = lectura1.split(',')
 		grafoPesado.AgregarVertice(linea1[0])
 		grafoDirigido.AgregarVertice(linea1[0])
-		coordenadas[linea1[0]] = (linea1[1],linea1[2])
+		coordenadas[linea1[0]] = (linea1[2],linea1[1])
 
 	cantidadA = int(archivo.readline())
 	for j in range(0,cantidadA):
@@ -84,6 +84,11 @@ while True:
    				linea = line.split(',')
    				lista.append((linea[0],linea[1]))
 
+
+		if os.path.isfile(cadena[1]) == False:
+			print('archivo incorrecto')
+			sys.exit()
+			
 		archivo.close()
 
 		camino = lib.orden_topologico(grafoDirigido,lista)

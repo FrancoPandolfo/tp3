@@ -41,8 +41,10 @@ else:
 while True:
 	
 	text = input("entrada:")
-
+	if len(text) > 1:
+		text[-1]
 	cadena = text.split(' ')
+	print(text)
 
 	if cadena[0] == 'ir':
 		cadena[1] = cadena[1][:-1]

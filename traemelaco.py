@@ -30,7 +30,7 @@ def main():
 				cadena[pos_coma] = cadena[pos_coma][:-1]
 				s1 = ' '
 				actual1 = []
-				if i > 1:
+				if pos_coma > 1:
 					for i in range(1,pos_coma+1):
 						actual1.append(cadena[i])
 					cadena[1] = s1.join(actual1)
@@ -44,6 +44,8 @@ def main():
 					for i in range(pos_coma+1,len(cadena)):
 						actual2.append(cadena[i])
 					cadena[2] = s2.join(actual2)
+				else:
+					cadena[2] = cadena[pos_coma+1]
 
 				camino = lib.camino_minimo(grafoPesado,cadena[1],cadena[2])
 				print(' -> '.join(camino[0]))

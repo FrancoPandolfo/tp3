@@ -118,8 +118,9 @@ def menor_camino(caminos,camino,costo):
 
 
 def viajante(grafo,origen):
-	global distancia_optima
-	global camino_optimo
+	global camino_optimo, distancia_optima
+	camino_optimo = []
+	distancia_optima = -1
 	dic = grafo.dic.copy()
 	del dic[origen]
 	vertices = list(dic.keys())

@@ -2,6 +2,7 @@ import heapq
 import queue
 import random
 import math
+import itertools
 from collections import OrderedDict
 from grafoPeso import grafoPeso
 from grafoDir import grafoDir
@@ -21,7 +22,6 @@ def buscar_vertice(dic,pos):
 			return v
 		cont += 1
 
-# inicio bloque Held-Karp
 def viajante_floyd(grafo,origen):
 	w, h = len(grafo.dic), len(grafo.dic);
 	dist = [[math.inf for x in range(w)] for y in range(h)]
@@ -40,51 +40,6 @@ def viajante_floyd(grafo,origen):
 					dist[i][j] = dist[i][k] + dist[k][j]
 	return dist
 
-def llenar(grafo,M,origen,matriz,N):
-	for i in range(0,N):
-		if buscar_vertice(grafo.dic,i) == origen:
-			continue
-		matriz[i][1 << buscar_pos(grafo.dic,origen) | 1 << i] = M[buscar_pos(grafo.dic,origen)][i]
-	return matriz
-
-def combinaciones_funcion(Set,at,i,N,sublistas):
-	elementoIzq = N - at
-	if elementoIzq < i:
-		return None
-	if i == 0:
-		sublistas.append(Set)
-	else:
-		for j in range(at,N):
-			Set |= Set << j
-			combinaciones_funcion(Set,j+1,i-1,N,sublistas)
-			Set &= ~(i << j)
-
-def combinaciones(i,N):
-	sublistas = []
-	combinaciones_funcion(0,0,i,N,sublistas)
-	return sublistas
-
-def notIn(x,sublista):
-	return ((1 << x) & sublista) == 0
-
-def resolver(grafo,M,matriz,origen,N):
-	for i in range(3,N+1):
-		for sublista in combinaciones(i,N):
-			if notIn(buscar_pos(grafo.dic,origen),sublista):
-				continue
-			for j in range(0,N):
-				if j == buscar_pos(grafo.dic,origen) or notIn(j,sublista):
-					continue
-				estado = sublista ^ (1 << j)
-				minDist = math.inf
-				for k in range(0,N):
-					if k == buscar_pos(grafo.dic,origen) or k == j or notIn(k,sublista):
-						continue
-					nuevaDistancia = matriz[k][estado] + M[k][j]
-					if nuevaDistancia < minDist:
-						minDist = nuevaDistancia
-				matriz[j][sublista] = minDist
-	return matriz
 
 def encontrar_minimo(grafo,camino,costoMinimo):
 	for i in range(0,len(camino)):
@@ -96,48 +51,60 @@ def encontrar_minimo(grafo,camino,costoMinimo):
 			continue
 	return costoMinimo
 
-def encontrar_camino(grafo,M,matriz,origen,N):
-	ultimoIndice = buscar_pos(grafo.dic,origen)
-	estado = (1 << N) - 1 
-	camino = []
-	camino.append(buscar_pos(grafo.dic,origen))
-	for i in range(N-1,0,-1):
-		indice = -1
-		for j in range(0,N):
-			if j == buscar_pos(grafo.dic,origen) or notIn(j,estado):
-				continue
-			if indice == -1:
-				indice = j
-			distancia_previa = matriz[indice][estado] + M[indice][ultimoIndice]
-			distancia_nueva = matriz[j][estado] + M[j][ultimoIndice]
-			if distancia_nueva < distancia_previa:
-				indice = j
-		camino.append(indice)
-		estado = estado ^ (1 << indice)
-		ultimoIndice = indice
-	camino.append(buscar_pos(grafo.dic,origen))
-	return camino
+def encontrar_caminos_aux(origen,vertices, inicio, caminos):  #helper method
+	if inicio >= len(vertices):
+		insertar = vertices.copy()
+		insertar.insert(0,origen)
+		insertar.append(origen)
+		caminos.append(insertar[:])
+	else:
+		for i in range(inicio, len(vertices)):
+			vertices[i], vertices[inicio] = vertices[inicio], vertices[i]
+			encontrar_caminos_aux(origen,vertices, inicio +1, caminos)
+			vertices[inicio], vertices[i] = vertices[i], vertices[inicio]
 
-def transformar(grafo,camino):
-	camino_transformado = []
-	for i in range(0,len(camino)):
-		camino_transformado.append(buscar_vertice(grafo.dic,camino[i]))
-	return camino_transformado
-	
-# fin bloque Held-Karp
+def encontrar_caminos(origen, vertices,caminos):
+	encontrar_caminos_aux(origen, vertices, 0, caminos)
+	return caminos
+
+
+def distancias(grafo,caminos,costos):
+	for i in range(0,len(caminos)):
+		actual = caminos[i][0]
+		for j in range(1,len(caminos[i])):
+			siguiente = caminos[i][j]
+			costos[i] += grafo.VerPeso(actual,siguiente)
+			actual = siguiente
+	return costos
+
+def menor_camino(caminos,costos,camino,costo):
+	costo = costos[0]
+	costo_actual = 0
+	pos = 0
+	for i in range(1,len(costos)):
+		costo_actual = costos[i]
+		if costo_actual < costo:
+			costo = costo_actual
+			pos = i
+	camino = caminos[i]
+	return camino, costo
+
 
 def viajante(grafo,origen):
-	N = len(grafo.dic)
-	matriz = [[0 for x in range(2**N)] for y in range(N)]
-	M = viajante_floyd(grafo,origen)
-	matriz = llenar(grafo,M,origen,matriz,N)
-	matriz = resolver(grafo,M,matriz,origen,N)
-	camino = encontrar_camino(grafo,M,matriz,origen,N)
-	camino = transformar(grafo, camino)
-	costoMinimo = 0
-	costoMinimo = encontrar_minimo(grafo,camino,costoMinimo)
-	return camino, costoMinimo
-
+	dic = grafo.dic.copy()
+	del dic[origen]
+	vertices = list(dic.keys())
+	vertice = vertices[1]
+	camino = []
+	visitado = []
+	visitado.append(origen)
+	costo = 0
+	caminos = []
+	caminos = encontrar_caminos(origen, vertices,caminos)
+	costos = [0] * len(caminos)
+	costos = distancias(grafo,caminos,costos)
+	camino, costo = menor_camino(caminos,costos,camino,costo)
+	return camino, costo
 
 def viajante_aproximado_funcion(grafo,origen):
 	visitado = []

@@ -3,6 +3,7 @@ import queue
 import random
 import math
 import itertools
+import os.path
 from collections import OrderedDict
 from grafoPeso import grafoPeso
 from grafoDir import grafoDir
@@ -51,22 +52,48 @@ def encontrar_minimo(grafo,camino,costoMinimo):
 			continue
 	return costoMinimo
 
-def encontrar_caminos_aux(origen,vertices, inicio, caminos):  #helper method
+distancia_optima = -1
+camino_optimo = []
+
+def encontrar_caminos_aux(grafo,origen,vertices, inicio, caminos):
+	global distancia_optima
+	global camino_optimo
 	if inicio >= len(vertices):
+		distancia_actual = 0
 		insertar = vertices.copy()
 		insertar.insert(0,origen)
 		insertar.append(origen)
+		distancia_actual = calcular_distancia(grafo,insertar,distancia_actual)
+		if distancia_optima == -1 or distancia_actual < distancia_optima:
+			distancia_optima = distancia_actual
+			camino_optimo = insertar.copy()
 		caminos.append(insertar[:])
 	else:
 		for i in range(inicio, len(vertices)):
 			vertices[i], vertices[inicio] = vertices[inicio], vertices[i]
-			encontrar_caminos_aux(origen,vertices, inicio +1, caminos)
-			vertices[inicio], vertices[i] = vertices[i], vertices[inicio]
+			actual = vertices[0]
+			distancia_aux = 0
+			for j in range(1,inicio):
+				siguiente = vertices[j]
+				distancia_aux += grafo.VerPeso(actual,siguiente)
+				actual = siguiente
+			if distancia_optima == -1 or distancia_aux < distancia_optima:
+				encontrar_caminos_aux(grafo,origen,vertices, inicio +1, caminos)
+				vertices[inicio], vertices[i] = vertices[i], vertices[inicio]
+			else:
+				break
 
-def encontrar_caminos(origen, vertices,caminos):
-	encontrar_caminos_aux(origen, vertices, 0, caminos)
+def encontrar_caminos(grafo,origen, vertices,caminos):
+	encontrar_caminos_aux(grafo,origen, vertices, 0, caminos)
 	return caminos
 
+def calcular_distancia(grafo,vertices, distancia_actual):
+	actual = vertices[0]
+	for i in range(1,len(vertices)):
+		siguiente = vertices[i]
+		distancia_actual += grafo.VerPeso(actual,siguiente)
+		actual = siguiente
+	return distancia_actual
 
 def distancias(grafo,caminos,costos):
 	for i in range(0,len(caminos)):
@@ -77,7 +104,7 @@ def distancias(grafo,caminos,costos):
 			actual = siguiente
 	return costos
 
-def menor_camino(caminos,costos,camino,costo):
+def menor_camino(caminos,camino,costo):
 	costo = costos[0]
 	costo_actual = 0
 	pos = 0
@@ -91,65 +118,48 @@ def menor_camino(caminos,costos,camino,costo):
 
 
 def viajante(grafo,origen):
+	global distancia_optima
+	global camino_optimo
 	dic = grafo.dic.copy()
 	del dic[origen]
 	vertices = list(dic.keys())
-	vertice = vertices[1]
-	camino = []
 	visitado = []
 	visitado.append(origen)
-	costo = 0
 	caminos = []
-	caminos = encontrar_caminos(origen, vertices,caminos)
-	costos = [0] * len(caminos)
-	costos = distancias(grafo,caminos,costos)
-	camino, costo = menor_camino(caminos,costos,camino,costo)
-	return camino, costo
+	caminos = encontrar_caminos(grafo,origen, vertices,caminos)
+	return camino_optimo, distancia_optima
 
 def viajante_aproximado_funcion(grafo,origen):
 	visitado = []
 	padre = {}
 	dist = {}
+	cola = queue.Queue()
 	visitado.append(origen)
 	heap = []
+	heap2 = []
 	padre[origen] = None
 	dist[origen] = 0
 	heapq.heappush(heap,origen)
-	MinimoP = 0
-	MinimoV = origen
 	while len (heap) > 0:
 		v = heapq.heappop(heap)
-		actualV = buscar_vertice(grafo.dic[v],0)
-		actualP = grafo.VerPeso(v,actualV)
-		for i in range(1,len(grafo.dic[v])):
-			siguienteV = buscar_vertice(grafo.dic[v],i)
-			siguienteP = grafo.VerPeso(v,siguienteV)
-			if actualV == siguienteV or siguienteV in visitado:
-				continue
-			if actualV in visitado:
-				actualV = siguienteV
-				actualP = siguienteP
-				continue
-			if actualP < siguienteP:
-				MinimoP = actualP
-				MinimoV = actualV
-				actualP = siguienteP
-				actualV = siguienteV
+		contador = 0
+		for w in grafo.VerVecinos(v):
+			a = (grafo.VerPeso(v,w),v,w)
+			heapq.heappush(heap2,a)
+			contador += 1
+		while len (heap2) > 0:
+			u = heapq.heappop(heap2)
+			contador -= 1
+			if u[2] not in visitado:
+				visitado.append(u[2])
+				padre[u[2]] = v
+				dist[u[2]] = dist[v] + u[0]
+				heapq.heappush(heap,u[2])
+				break
 			else:
-				MinimoP = siguienteP
-				MinimoV = siguienteV
-				actualP = siguienteP
-				actualV = siguienteV
-		if MinimoV not in visitado:
-			visitado.append(MinimoV)
-			padre[MinimoV] = v
-			dist[MinimoV] = dist[v] + MinimoP
-			heapq.heappush(heap,MinimoV)
-	if(len(padre) != len(grafo.dic)):
-		anterior = buscar_vertice(padre,len(padre)-1)
-		padre[actualV] = anterior
-		dist[actualV] = actualP + dist[anterior]
-
+				continue
+		for i in range(0,contador):
+			heapq.heappop(heap2)
 	return padre,dist
 
 def viajante_aproximado(grafo,origen):
@@ -319,3 +329,29 @@ def armar_archivo2(archivo,camino,coordenadas):
 	file.write("\t%s\n" % ('</Document>'))
 	file.write("%s\n" % ('</kml>'))			
 	file.close()
+
+def abrir_archivo(file,coordenadas,grafoPesado,grafoDirigido):
+	if os.path.isfile(file) == True:
+
+		archivo = open(file, 'r')
+		cantidadV = int(archivo.readline())
+		for i in range(0,cantidadV):
+			lectura1 = archivo.readline()
+			lectura1 = lectura1[:-1]
+			linea1 = lectura1.split(',')
+			grafoPesado.AgregarVertice(linea1[0])
+			grafoDirigido.AgregarVertice(linea1[0])
+			coordenadas[linea1[0]] = (linea1[2],linea1[1])
+
+		cantidadA = int(archivo.readline())
+		for j in range(0,cantidadA):
+			lectura2 = archivo.readline()
+			linea2 = lectura2.split(',')
+			grafoPesado.AgregarArista( (linea2[0],linea2[1],int(linea2[2])) )
+			grafoDirigido.AgregarArista((linea2[0],linea2[1]))
+			grafoDirigido.AgregarArista((linea2[1],linea2[0]))
+
+		archivo.close()
+	else:
+		print('archivo incorrecto')
+		sys.exit()

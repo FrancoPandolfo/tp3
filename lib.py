@@ -102,6 +102,8 @@ def encontrar_caminos_aux2(grafo,vertices,orden_actual, suma_actual, vertices_re
 		suma_actual_copia = suma_actual
 		if len(orden_copia) > 1:
 			suma_actual_copia += grafo.VerPeso(orden_copia[len(orden_copia)-2], i)
+		if suma_actual_copia >= distancia_optima and distancia_optima != -1:
+			break
 		if suma_actual_copia < distancia_optima or distancia_optima == -1:
 			encontrar_caminos_aux2(grafo,vertices,orden_copia,suma_actual_copia,vertices_aux)
 
@@ -129,9 +131,6 @@ def arreglar_camino(origen):
 	for k in range(1,cont1):
 		nuevo_camino.append(camino_optimo[k])
 
-	nuevo_camino.reverse()
-	#nuevo_camino[lar-4],nuevo_camino[lar-7] = nuevo_camino[lar-7], nuevo_camino[lar-4]
-	#nuevo_camino[lar-5],nuevo_camino[lar-6] = nuevo_camino[lar-6], nuevo_camino[lar-5]
 	return nuevo_camino
 
 
@@ -145,79 +144,6 @@ def viajante(grafo,origen):
 	camino_optimo = arreglar_camino(origen)
 	return camino_optimo, distancia_optima
 
-'''def viajante(grafo,origen):
-	global camino_optimo, distancia_optima
-	camino_optimo = []
-	distancia_optima = -1
-	dic = grafo.dic.copy()
-	del dic[origen]
-	vertices = list(dic.keys())
-	caminos = []
-	encontrar_caminos(grafo,origen,vertices)
-	camino_optimo.insert(0,origen)
-	camino_optimo.append(origen)
-	#camino_optimo = arreglar_camino(origen)
-	return camino_optimo, distancia_optima'''
-
-def backtrack(grafo,vertices,caminos,visitado,pila,u):
-	if len(pila) == len(grafo.dic):
-		caminos.append(pila[:])
-		pila = []
-	visitado.append(u)
-	for w in grafo.VerVecinos(u):
-		if w not in visitado:
-			pila.append(w)
-			backtrack(grafo,vertices,caminos,visitado,pila,w)
-	visitado.remove(u)
-
-def back(grafo,vertices,caminos):
-	visitado = []
-	pila = []
-	for u in grafo.dic:
-		pila.append(u)
-		backtrack(grafo,vertices,caminos,visitado,pila,u)
-	return caminos
-
-'''def viajante(grafo,origen):
-	dic = grafo.dic.copy()
-	del dic[origen]
-	vertices = list(dic.keys())
-	caminos = []
-	print(back(grafo,vertices,caminos))
-	#camino_optimo.insert(0,origen)
-	#camino_optimo.append(origen)
-	#print(caminos)
-	#return camino_optimo, distancia_optima'''
-
-'''def tsp1(grafo,vertices,l,largo,costo):
-	n = len(vertices)
-	if l == n:
-		costo = min(costo,largo+grafo.VerPeso(vertices[n],vertices[0]))
-	else:
-		for i in range(l+1,n):
-			vertices[l+1], vertices[i] = vertices[i], vertices[l+1]
-			nuevoLargo = largo + grafo.VerPeso(vertices[l],vertices[l+1])
-			if nuevoLargo >= costo:
-				break
-			else:
-				costo = min(costo,tsp1(vertices,l+1,nuevoLargo,costo))
-				vertices[l+1], vertices[i] = vertices[i], vertices[l+1]
-	return costo
-
-def viajante(grafo,origen):
-	global distancia_optima
-	distancia_optima = -1
-	dic = grafo.dic.copy()
-	del dic[origen]
-	vertices = list(dic.keys())
-	caminos = []
-	costo = -1
-	costo = tsp1(grafo,vertices,0,0,costo)
-	print(costo)'''
-	#camino_optimo.insert(0,origen)
-	#camino_optimo.append(origen)
-	#print(caminos)
-	#return camino_optimo, distancia_optima
 
 """	Arma los posibles recorridos desde y hacia el origen """
 def recorrido_armar(grafo, origen):
@@ -257,13 +183,6 @@ def tsp(grafo, A, l, lengthSoFar, minCost):
 	return minCost
 
 """	Devuelve el menor recorrido desde y hacia el origen """
-'''def viajante(grafo, origen):
-	recorrido = recorrido_armar(grafo, origen)
-	minCost = math.inf
-	minCost = tsp(grafo, recorrido, 0, 0, minCost)
-	recorrido.insert(0, origen)
-	recorrido.append(origen)
-	return recorrido, minCost'''
 
 def calcular_distancia(grafo,origen,vertices, distancia_actual):
 	actual = vertices[0]
@@ -342,25 +261,6 @@ def permutaciones(grafo,dic,caminos,origen):
 		for i in range(0,len(permutacion_actual)):
 			caminos.append(permutacion_actual[i])
 	return caminos
-
-'''def viajante(grafo,origen):
-	global camino_optimo, distancia_optima
-	camino_optimo = []
-	distancia_optima = -1
-	dic = grafo.dic.copy()
-	del dic[origen]
-	vertices = list(dic.keys())
-	#encontrar_caminos(grafo,origen,vertices)
-	camino = []
-	costo = 0
-	caminos = []
-	caminos = permutaciones(grafo,grafo.dic,caminos,origen)
-	camino_optimo.insert(0,origen)
-	camino_optimo.append(origen)
-	costos = [0] * len(caminos)
-	#costos = distancias(grafo,caminos,costos)
-	#camino, costo = menor_camino(costos,caminos,camino,costo)
-	return camino_optimo, distancia_optima'''
 
 
 def viajante_aproximado_funcion(grafo,origen):
